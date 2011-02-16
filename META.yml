@@ -20,4 +20,4 @@ requires:
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-BashCompletion/
   repository: http://github.com/sharyanto/perl-Sub-Spec-BashCompletion
-version: 0.03
+version: 0.04

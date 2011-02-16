@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.03';
+  $Sub::Spec::BashComplete::VERSION = '0.04';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -197,6 +197,7 @@ sub bash_complete_spec_arg {
             if (defined($args->{$_}) && $args->{$_} eq $uuid) {
                 $arg = $_;
                 $which = 'value';
+                $args->{$_} = undef;
                 last;
             }
         }
@@ -290,7 +291,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
