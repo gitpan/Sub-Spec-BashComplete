@@ -1,0 +1,15 @@
+Build.PL
+Changes
+LICENSE
+MANIFEST
+MANIFEST.SKIP
+META.yml
+README
+dist.ini
+lib/Sub/Spec/BashComplete.pm
+t/00-compile.t
+t/_complete_array.t
+t/_complete_hash_key.t
+t/bash_complete_spec_arg.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t

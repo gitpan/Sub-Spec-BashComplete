@@ -1,0 +1,23 @@
+---
+abstract: 'Provide bash completion for Sub::Spec::CmdLine programs'
+author:
+  - 'Steven Haryanto <stevenharyanto@gmail.com>'
+build_requires:
+  Module::Build: 0.3601
+configure_requires:
+  Module::Build: 0.3601
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.200003, CPAN::Meta::Converter version 2.102400'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Sub-Spec-BashComplete
+requires:
+  Sub::Spec::CmdLine: 0.09
+  UUID::Random: 0
+  perl: 5.010000
+resources:
+  homepage: http://search.cpan.org/dist/Sub-Spec-BashCompletion/
+  repository: http://github.com/sharyanto/perl-Sub-Spec-BashCompletion
+version: 0.01

@@ -1,0 +1,88 @@
+NAME
+    Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine
+    programs
+
+VERSION
+    version 0.01
+
+SYNOPSIS
+     # require'd by Sub::Spec::CmdLine bash completion is enabled
+
+DESCRIPTION
+    This module provides functionality for doing bash completion. It is
+    meant to be used by Sub::Spec::CmdLine, but nevertheless some routines
+    is reusable outside it.
+
+FUNCTIONS
+    None of the functions are exported by default, but they are exportable.
+
+  complete_env($word, \%opts) => ARRAY
+    Complete from environment variables (%ENV). Word should be '' or '$' or
+    'foo' or '$foo'. Return list of possible completion, e.g. "('$USER',
+    '$HOME', ...)".
+
+    Options:
+
+    *   ci => BOOL (default 0)
+
+        If set to true, match case-insensitively.
+
+  complete_program($word, \%opts) => ARRAY
+    Complete from program names (or dir names). Only program which is
+    executable will be listed. Word can be '/usr/bin/foo' or 'foo' or ''. If
+    word doesn't contain '/', will search from PATH.
+
+  complete_file($word, \%opts) => ARRAY
+    Complete from file names in the current directory.
+
+    Options:
+
+    f => BOOL (default 1)
+        If set to 0, will not complete files, only directories.
+
+    d => BOOL (default 1)
+        If set to 0, will not complete directories, only files.
+
+  complete_subcommand($word, \%subcommands, \%opts) => ARRAY
+    Complete from subcommand names in %subcommands.
+
+    Options:
+
+    *   ci => BOOL (default 0)
+
+        If set to true, match case-insensitively.
+
+  bash_complete_spec_arg(\%spec, \%opts) => ARRAY
+    Complete subroutine arguments (from $spec{args}, where %spec is a
+    Sub::Spec subroutine spec). Word can be 'argname' or '--arg' or
+    '--arg='.
+
+    Options:
+
+    *   words => ARRAYREF
+
+        If unset, will be taken from COMP_LINE and COMP_POINT.
+
+    *   cword => INT
+
+    *   args_sub => CODEREF
+
+    *   arg_sub => {ARGNAME => CODEREF, ...}
+
+SEE ALSO
+    Sub::Spec
+
+    Sub::Spec::CmdLine
+
+    Other bash completion modules on CPAN: Getopt::Complete,
+    Bash::Completion.
+
+AUTHOR
+    Steven Haryanto <stevenharyanto@gmail.com>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2011 by Steven Haryanto.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
