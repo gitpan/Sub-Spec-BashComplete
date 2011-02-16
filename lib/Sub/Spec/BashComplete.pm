@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.02';
+  $Sub::Spec::BashComplete::VERSION = '0.03';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -201,7 +201,10 @@ sub bash_complete_spec_arg {
             }
         }
     }
-    if ($which ne 'value' && $word =~ /^--([\w-]+)=(.*)/) {
+    if ($which eq 'value' && $word =~ /^-/) {
+        # user indicates he wants to complete arg name
+        $which = 'name';
+    } elsif ($which ne 'value' && $word =~ /^--([\w-]+)=(.*)/) {
         $arg = $1;
         $words->[$cword] = $2;
         $which = 'value';
@@ -287,7 +290,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
