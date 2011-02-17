@@ -3,7 +3,7 @@ NAME
     programs
 
 VERSION
-    version 0.04
+    version 0.05
 
 SYNOPSIS
      # require'd by Sub::Spec::CmdLine bash completion is enabled
@@ -37,10 +37,12 @@ FUNCTIONS
 
     Options:
 
-    f => BOOL (default 1)
+    *   f => BOOL (default 1)
+
         If set to 0, will not complete files, only directories.
 
-    d => BOOL (default 1)
+    *   d => BOOL (default 1)
+
         If set to 0, will not complete directories, only files.
 
   complete_subcommand($word, \%subcommands, \%opts) => ARRAY

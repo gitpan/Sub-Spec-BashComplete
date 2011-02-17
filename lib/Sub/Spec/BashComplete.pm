@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.04';
+  $Sub::Spec::BashComplete::VERSION = '0.05';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -47,13 +47,19 @@ sub _line_to_argv {
 # parse COMP_LINE and COMP_POINT
 sub _parse_request {
     my ($line, $point) = @_;
+    $log->tracef("-> _parse_request(%s, %s)", $line, $point);
+
     $line  //= $ENV{COMP_LINE};
     $point //= $ENV{COMP_POINT};
+    $log->tracef("line=q(%s), point=%s", $line, $point);
 
     my $left  = substr($line, 0, $point);
     my @left;
     if (length($left)) {
         @left = _line_to_argv($left);
+        # shave off $0
+        substr($left, 0, length($left[0])) = "";
+        $left =~ s/^\s+//;
         shift @left;
     }
 
@@ -63,12 +69,16 @@ sub _parse_request {
         $right =~ s/^\S+//;
         @right = _line_to_argv($right) if length($right);
     }
+    $log->tracef("left=q(%s), \@left=%s, right=q(%s), \@right=%s",
+                 $left, \@left, $right, \@right);
 
     my $words = [@left, @right],
     my $cword = @left ? scalar(@left)-1 : 0;
     $cword++ if $left =~ /\s$/; # XXX doesn't consider shell quoting
 
-    {words => $words, cword => $cword};
+    my $res = {words => $words, cword => $cword};
+    $log->tracef("<- _parse_request, result=%s", $res);
+    $res;
 }
 
 sub _complete_array {
@@ -164,6 +174,7 @@ sub bash_complete_spec_arg {
 
     my ($spec, $opts) = @_;
     $opts //= {};
+    $log->tracef("-> bash_complete_spec_arg, opts=%s", $opts);
 
     my ($words, $cword);
     if ($opts->{words}) {
@@ -291,7 +302,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -336,11 +347,11 @@ Options:
 
 =over 4
 
-=item f => BOOL (default 1)
+=item * f => BOOL (default 1)
 
 If set to 0, will not complete files, only directories.
 
-=item d => BOOL (default 1)
+=item * d => BOOL (default 1)
 
 If set to 0, will not complete directories, only files.
 
