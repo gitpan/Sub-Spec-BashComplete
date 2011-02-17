@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.05';
+  $Sub::Spec::BashComplete::VERSION = '0.06';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -20,7 +20,8 @@ our @EXPORT_OK = qw(
                        bash_complete_spec_arg
                );
 
-# borrowed from Getopt::Complete
+# borrowed from Getopt::Complete. current problems: '$foo' disappears because
+# shell will substitute it.
 sub _line_to_argv {
     require IPC::Open2;
 
@@ -83,6 +84,7 @@ sub _parse_request {
 
 sub _complete_array {
     my ($word, $arrayref, $opts) = @_;
+    $log->tracef("-> _complete_array(), word=%s, array=%s", $word, $arrayref);
     $word //= "";
     $opts //= {};
 
@@ -93,6 +95,7 @@ sub _complete_array {
 
 sub _complete_hash_key {
     my ($word, $hashref, $opts) = @_;
+    $log->tracef("-> _complete_hash_key(), word=%s, hash=%s", $word, $hashref);
     $word //= "";
     $opts //= {};
 
@@ -106,9 +109,11 @@ sub _complete_hash_key {
 sub complete_env {
     my ($word, $opts) = @_;
     $word //= "";
-    $word =~ s/^\$//;
-
-    _complete_hash_key($word, \%ENV, $opts);
+    if ($word =~ /^\$/) {
+        _complete_array($word, [map {"\$$_"} keys %ENV], $opts);
+    } else {
+        _complete_hash_key($word, \%ENV, $opts);
+    }
 }
 
 sub complete_program {
@@ -188,7 +193,10 @@ sub bash_complete_spec_arg {
     my $word = $words->[$cword] // "";
     $log->tracef("words=%s, cword=%d, word=%s", $words, $cword, $word);
 
-    return complete_env($word) if $word =~ /^\$/;
+    if ($word =~ /^\$/) {
+        $log->tracef("word begins with \$, completing env vars");
+        return complete_env($word);
+    }
 
     my $args_spec = $spec->{args};
     $args_spec    = {
@@ -200,10 +208,12 @@ sub bash_complete_spec_arg {
     # complete arg name or arg value.
     my $which = 'name';
     my $arg;
+    my $remaining_words = [@$words];
     {
         my $uuid = UUID::Random::generate();
-        local $words->[$cword] = $uuid;
-        $args = Sub::Spec::CmdLine::parse_argv([@$words], $spec, {strict=>0});
+        local $remaining_words->[$cword] = $uuid;
+        $args = Sub::Spec::CmdLine::parse_argv(
+            $remaining_words, $spec, {strict=>0});
         for (keys %$args) {
             if (defined($args->{$_}) && $args->{$_} eq $uuid) {
                 $arg = $_;
@@ -222,6 +232,29 @@ sub bash_complete_spec_arg {
         $which = 'value';
     }
     $log->tracef("we should complete arg $which, arg=%s, word=%s", $arg, $word);
+
+    if ($opts->{custom_completer}) {
+        $log->tracef("custom_completer option is specified, will use it");
+        # custom_completer can decline by returning (undef) (that is, a
+        # 1-element list containing undef)
+        my @res = $opts->{custom_completer}->(
+            which => $which,
+            words => $words,
+            cword => $cword,
+            word  => $word,
+            parent_args => $args,
+            spec  => $spec,
+            opts  => $opts,
+            remaining_words => $remaining_words,
+        );
+        if (@res==1 && !defined($res[0])) {
+            $log->tracef("custom_completer declined, will continue without");
+        } else {
+            my @res = _complete_array($word, \@res);
+            $log->tracef("result from custom_completer: %s", \@res);
+            return @res;
+        }
+    }
 
     if ($which eq 'value') {
         my $arg_spec = $args_spec->{$arg};
@@ -270,12 +303,23 @@ sub bash_complete_spec_arg {
         my @completeable_args;
         for (sort keys %$args_spec) {
             my $a = $_; $a =~ s/^--//;
-            next if defined($args->{$a});
+            my @w;
             if ($args_spec->{$_}{type} eq 'bool') {
-                push @completeable_args, "--$_", "--no$_";
+                @w = ("--$_", "--no$_");
             } else {
-                push @completeable_args, "--$_";
+                @w = ("--$_");
             }
+            my $aliases = $args_spec->{$_}{attr_hashes}[0]{cmdline_aliases};
+            if ($aliases) {
+                while (my ($al, $alinfo) = each %$aliases) {
+                    push @w,
+                        (length($al) == 1 ? "-$al" : "--$al");
+                }
+            }
+            # skip displaying --foo if already mentioned, except when current
+            # word
+            next if defined($args->{$a}) && !($word ~~ @w);
+            push @completeable_args, @w;
         }
         $log->tracef("completeable_args = %s", \@completeable_args);
 
@@ -302,7 +346,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 

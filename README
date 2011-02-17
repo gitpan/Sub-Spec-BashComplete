@@ -3,7 +3,7 @@ NAME
     programs
 
 VERSION
-    version 0.05
+    version 0.06
 
 SYNOPSIS
      # require'd by Sub::Spec::CmdLine bash completion is enabled
