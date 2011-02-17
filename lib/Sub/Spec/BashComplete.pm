@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.06';
+  $Sub::Spec::BashComplete::VERSION = '0.07';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -304,7 +304,8 @@ sub bash_complete_spec_arg {
         for (sort keys %$args_spec) {
             my $a = $_; $a =~ s/^--//;
             my @w;
-            if ($args_spec->{$_}{type} eq 'bool') {
+            my $type = $args_spec->{$_}{type};
+            if ($type eq 'bool') {
                 @w = ("--$_", "--no$_");
             } else {
                 @w = ("--$_");
@@ -314,6 +315,10 @@ sub bash_complete_spec_arg {
                 while (my ($al, $alinfo) = each %$aliases) {
                     push @w,
                         (length($al) == 1 ? "-$al" : "--$al");
+                    if ($type eq 'bool' && length($al) > 1 &&
+                            !$alinfo->{code}) {
+                        push @w, "--no$al";
+                    }
                 }
             }
             # skip displaying --foo if already mentioned, except when current
@@ -346,7 +351,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
