@@ -3,7 +3,7 @@ NAME
     programs
 
 VERSION
-    version 0.08
+    version 0.09
 
 SYNOPSIS
      # require'd by Sub::Spec::CmdLine bash completion is enabled
@@ -70,6 +70,15 @@ FUNCTIONS
     *   args_sub => CODEREF
 
     *   arg_sub => {ARGNAME => CODEREF, ...}
+
+BUGS/LIMITATIONS/TODOS
+    Due to parsing limitation (invokes subshell), can't complete unclosed
+    quotes, e.g.
+
+     foo "bar <tab>
+
+    while shell function can complete this because they are provided
+    COMP_WORDS and COMP_CWORD by bash.
 
 SEE ALSO
     Sub::Spec

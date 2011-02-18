@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.08';
+  $Sub::Spec::BashComplete::VERSION = '0.09';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -20,8 +20,10 @@ our @EXPORT_OK = qw(
                        bash_complete_spec_arg
                );
 
-# borrowed from Getopt::Complete. current problems: '$foo' disappears because
-# shell will substitute it.
+# borrowed from Getopt::Complete. current problems: 1) '$foo' disappears because
+# shell will substitute it. 2) can't parse if closing quotes have not been
+# supplied (e.g. spanel get-plan "BISNIS A<tab>). at least it works with
+# backslash escapes.
 sub _line_to_argv {
     require IPC::Open2;
 
@@ -44,6 +46,12 @@ sub _line_to_argv {
 
     return @array;
 }
+
+# simplistic parsing, doesn't consider shell syntax at all. doesn't work the
+# minute we use funny characters.
+#sub _line_to_argv_BC {
+#    split(/\h+/, $_[0]);
+#}
 
 # parse COMP_LINE and COMP_POINT
 sub _parse_request {
@@ -75,21 +83,27 @@ sub _parse_request {
 
     my $words = [@left, @right],
     my $cword = @left ? scalar(@left)-1 : 0;
-    $cword++ if $left =~ /\s$/; # XXX doesn't consider shell quoting
+
+    # is there a space after the final word (e.g. "foo bar ^" instead of "foo
+    # bar^" or "foo bar\ ^")? if yes then cword is on the next word.
+    my $tmp = $left;
+    my $nspc_left = 0; $nspc_left++ while $tmp =~ s/\s$//;
+    $tmp = $left[-1];
+    my $nspc_lastw = 0;
+    if (defined($tmp)) { $nspc_lastw++ while $tmp =~ s/\s$// }
+    $cword++ if $nspc_lastw < $nspc_left;
 
     my $res = {words => $words, cword => $cword};
     $log->tracef("<- _parse_request, result=%s", $res);
     $res;
 }
 
-sub _addslashes {
+sub _add_slashes {
     my ($a) = @_;
-    $a =~ s/([^A-Za-z0-9,+._-])/\\$1/g;
+    $a =~ s!([^A-Za-z0-9,+._/-])!\\$1!g;
     $a;
 }
 
-# all completion routine should eventually call _complete_array, since it is the
-# one doing the output escaping
 sub _complete_array {
     my ($word, $arrayref, $opts) = @_;
     $log->tracef("-> _complete_array(), word=%s, array=%s", $word, $arrayref);
@@ -100,7 +114,7 @@ sub _complete_array {
     my @res;
     for (@$arrayref) {
         next unless 0==($opts->{ci} ? index(uc($_), $wordu):index($_, $word));
-        push @res, _addslashes($_);
+        push @res, $_;
     }
     @res;
 }
@@ -217,20 +231,23 @@ sub bash_complete_spec_arg {
     my $which = 'name';
     my $arg;
     my $remaining_words = [@$words];
-    {
-        my $uuid = UUID::Random::generate();
-        local $remaining_words->[$cword] = $uuid;
-        $args = Sub::Spec::CmdLine::parse_argv(
-            $remaining_words, $spec, {strict=>0});
-        for (keys %$args) {
-            if (defined($args->{$_}) && $args->{$_} eq $uuid) {
-                $arg = $_;
-                $which = 'value';
-                $args->{$_} = undef;
-                last;
-            }
+
+    my $uuid = UUID::Random::generate();
+    $remaining_words->[$cword] = $uuid;
+    $args = Sub::Spec::CmdLine::parse_argv(
+        $remaining_words, $spec, {strict=>0});
+    for (keys %$args) {
+        if (defined($args->{$_}) && $args->{$_} eq $uuid) {
+            $arg = $_;
+            $which = 'value';
+            $args->{$_} = undef;
+            last;
         }
     }
+    for (@$remaining_words) { $_ = undef if defined($_) && $_ eq $uuid }
+    pop @$remaining_words
+        while (@$remaining_words && !defined($remaining_words->[-1]));
+
     if ($which eq 'value' && $word =~ /^-/) {
         # user indicates he wants to complete arg name
         $which = 'name';
@@ -245,10 +262,12 @@ sub bash_complete_spec_arg {
         $log->tracef("custom_completer option is specified, will use it");
         # custom_completer can decline by returning (undef) (that is, a
         # 1-element list containing undef)
+        my $newcword = $cword - (@$words - @$remaining_words);
+        $newcword = 0 if $newcword < 0;
         my @res = $opts->{custom_completer}->(
             which => $which,
             words => $words,
-            cword => $cword,
+            cword => $newcword,
             word  => $word,
             parent_args => $args,
             spec  => $spec,
@@ -363,7 +382,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
@@ -452,6 +471,16 @@ If unset, will be taken from COMP_LINE and COMP_POINT.
 =item * arg_sub => {ARGNAME => CODEREF, ...}
 
 =back
+
+=head1 BUGS/LIMITATIONS/TODOS
+
+Due to parsing limitation (invokes subshell), can't complete unclosed quotes,
+e.g.
+
+ foo "bar <tab>
+
+while shell function can complete this because they are provided COMP_WORDS and
+COMP_CWORD by bash.
 
 =head1 SEE ALSO
 
