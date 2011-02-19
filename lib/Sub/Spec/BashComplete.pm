@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.09';
+  $Sub::Spec::BashComplete::VERSION = '0.10';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -100,7 +100,7 @@ sub _parse_request {
 
 sub _add_slashes {
     my ($a) = @_;
-    $a =~ s!([^A-Za-z0-9,+._/-])!\\$1!g;
+    $a =~ s!([^A-Za-z0-9,+._/:-])!\\$1!g;
     $a;
 }
 
@@ -233,6 +233,7 @@ sub bash_complete_spec_arg {
     my $remaining_words = [@$words];
 
     my $uuid = UUID::Random::generate();
+    my $orig_word = $remaining_words->[$cword];
     $remaining_words->[$cword] = $uuid;
     $args = Sub::Spec::CmdLine::parse_argv(
         $remaining_words, $spec, {strict=>0});
@@ -244,7 +245,19 @@ sub bash_complete_spec_arg {
             last;
         }
     }
-    for (@$remaining_words) { $_ = undef if defined($_) && $_ eq $uuid }
+    # restore original word which we replaced with uuid earlier (we can't simply
+    # use local $remaining_words->[$cword] = $uuid because the array might be
+    # sliced)
+    for my $i (0..@$remaining_words-1) {
+        if (defined($remaining_words->[$i]) &&
+                $remaining_words->[$i] eq $uuid) {
+            $remaining_words->[$i] = $orig_word;
+        }
+    }
+    # shave undef at the end because it might be formed when doing '--arg1
+    # <tab>' (XXX but why?) if we don't shave it, it will be assumed as '--arg1
+    # undef' and we move on to next arg name, when we should complete arg1's
+    # value.
     pop @$remaining_words
         while (@$remaining_words && !defined($remaining_words->[-1]));
 
@@ -264,7 +277,7 @@ sub bash_complete_spec_arg {
         # 1-element list containing undef)
         my $newcword = $cword - (@$words - @$remaining_words);
         $newcword = 0 if $newcword < 0;
-        my @res = $opts->{custom_completer}->(
+        my $res = $opts->{custom_completer}->(
             which => $which,
             words => $words,
             cword => $newcword,
@@ -274,11 +287,11 @@ sub bash_complete_spec_arg {
             opts  => $opts,
             remaining_words => $remaining_words,
         );
-        if (@res==1 && !defined($res[0])) {
+        if (@$res==1 && !defined($res->[0])) {
             $log->tracef("custom_completer declined, will continue without");
         } else {
-            my @res = _complete_array($word, \@res);
-            $log->tracef("result from custom_completer: %s", \@res);
+            $log->tracef("result from custom_completer: %s", $res);
+            my @res = _complete_array($word, $res);
             return @res;
         }
     }
@@ -318,9 +331,9 @@ sub bash_complete_spec_arg {
             $log->tracef("completing arg value from 'arg_complete' spec");
             return _complete_array(
                 $word,
-                [$ah0->{arg_complete}->(
+                $ah0->{arg_complete}->(
                     word => $word, args => $args,
-                )] # ...
+                )
             );
         }
 
@@ -382,7 +395,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
