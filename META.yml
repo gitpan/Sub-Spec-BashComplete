@@ -14,10 +14,10 @@ meta-spec:
   version: 1.4
 name: Sub-Spec-BashComplete
 requires:
-  Sub::Spec::CmdLine: 0.10
+  Sub::Spec: 0.04
   UUID::Random: 0
   perl: 5.010000
 resources:
   homepage: http://search.cpan.org/dist/Sub-Spec-BashCompletion/
   repository: http://github.com/sharyanto/perl-Sub-Spec-BashCompletion
-version: 0.10
+version: 0.11

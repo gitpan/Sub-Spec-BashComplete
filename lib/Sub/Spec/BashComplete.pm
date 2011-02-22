@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.10';
+  $Sub::Spec::BashComplete::VERSION = '0.11';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -19,6 +19,12 @@ our @EXPORT_OK = qw(
 
                        bash_complete_spec_arg
                );
+
+use Sub::Spec::Utils; # tmp, for _parse_schema
+
+sub _parse_schema {
+    Sub::Spec::Utils::_parse_schema(@_);
+}
 
 # borrowed from Getopt::Complete. current problems: 1) '$foo' disappears because
 # shell will substitute it. 2) can't parse if closing quotes have not been
@@ -222,7 +228,7 @@ sub bash_complete_spec_arg {
 
     my $args_spec = $spec->{args};
     $args_spec    = {
-        map { $_ => Sub::Spec::CmdLine::_parse_schema($args_spec->{$_}) }
+        map { $_ => _parse_schema($args_spec->{$_}) }
             keys %$args_spec };
     my $args;
 
@@ -395,7 +401,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.10
+version 0.11
 
 =head1 SYNOPSIS
 
