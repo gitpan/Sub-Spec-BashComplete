@@ -17,13 +17,14 @@ my %module_build_args = (
     'Steven Haryanto <stevenharyanto@gmail.com>'
   ],
   'dist_name' => 'Sub-Spec-BashComplete',
-  'dist_version' => '0.11',
+  'dist_version' => '0.12',
   'license' => 'perl',
   'module_name' => 'Sub::Spec::BashComplete',
   'recommends' => {},
   'recursive_test_files' => 1,
   'requires' => {
     'Sub::Spec' => '0.04',
+    'Sub::Spec::CmdLine' => '0.23',
     'UUID::Random' => '0',
     'perl' => '5.010000'
   },

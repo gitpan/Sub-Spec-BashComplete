@@ -15,9 +15,10 @@ meta-spec:
 name: Sub-Spec-BashComplete
 requires:
   Sub::Spec: 0.04
+  Sub::Spec::CmdLine: 0.23
   UUID::Random: 0
   perl: 5.010000
 resources:
-  homepage: http://search.cpan.org/dist/Sub-Spec-BashCompletion/
-  repository: http://github.com/sharyanto/perl-Sub-Spec-BashCompletion
-version: 0.11
+  homepage: http://search.cpan.org/dist/Sub-Spec-BashComplete/
+  repository: http://github.com/sharyanto/perl-Sub-Spec-BashComplete
+version: 0.12
