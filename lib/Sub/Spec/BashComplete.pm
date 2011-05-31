@@ -1,6 +1,6 @@
 package Sub::Spec::BashComplete;
 BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.13';
+  $Sub::Spec::BashComplete::VERSION = '0.14';
 }
 # ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
@@ -401,7 +401,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 
