@@ -1,13 +1,11 @@
 package Sub::Spec::BashComplete;
-BEGIN {
-  $Sub::Spec::BashComplete::VERSION = '0.14';
-}
-# ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
 use 5.010;
 use strict;
 use warnings;
 use Log::Any '$log';
+
+our $VERSION = '0.15'; # VERSION
 
 require Exporter;
 our @ISA       = qw(Exporter);
@@ -202,7 +200,7 @@ sub complete_subcommand {
 }
 
 sub bash_complete_spec_arg {
-    require Sub::Spec::CmdLine;
+    require Sub::Spec::GetArgs::Argv;
     require UUID::Random;
 
     my ($spec, $opts) = @_;
@@ -241,8 +239,8 @@ sub bash_complete_spec_arg {
     my $uuid = UUID::Random::generate();
     my $orig_word = $remaining_words->[$cword];
     $remaining_words->[$cword] = $uuid;
-    $args = Sub::Spec::CmdLine::parse_argv(
-        $remaining_words, $spec, {strict=>0});
+    $args = Sub::Spec::GetArgs::Argv::get_args_from_argv(
+        argv=>$remaining_words, spec=>$spec, strict=>0);
     for (keys %$args) {
         if (defined($args->{$_}) && $args->{$_} eq $uuid) {
             $arg = $_;
@@ -391,6 +389,7 @@ sub bash_complete_spec_arg {
 }
 
 1;
+# ABSTRACT: Provide bash completion for Sub::Spec::CmdLine programs
 
 
 =pod
@@ -401,7 +400,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 

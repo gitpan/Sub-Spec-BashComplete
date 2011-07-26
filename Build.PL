@@ -17,7 +17,7 @@ my %module_build_args = (
     'Steven Haryanto <stevenharyanto@gmail.com>'
   ],
   'dist_name' => 'Sub-Spec-BashComplete',
-  'dist_version' => '0.14',
+  'dist_version' => '0.15',
   'license' => 'perl',
   'module_name' => 'Sub::Spec::BashComplete',
   'recommends' => {},
@@ -26,7 +26,7 @@ my %module_build_args = (
     'File::Which' => '0',
     'Log::Any' => '0',
     'Sub::Spec' => '0.04',
-    'Sub::Spec::CmdLine' => '0.23',
+    'Sub::Spec::GetArgs::Argv' => '0.02',
     'UUID::Random' => '0',
     'perl' => '5.010000'
   },
