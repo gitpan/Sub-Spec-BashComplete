@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Log::Any '$log';
 
-our $VERSION = '0.16'; # VERSION
+our $VERSION = '0.17'; # VERSION
 
 require Exporter;
 our @ISA       = qw(Exporter);
@@ -18,10 +18,10 @@ our @EXPORT_OK = qw(
                        bash_complete_spec_arg
                );
 
-use Sub::Spec::Utils; # tmp, for _parse_schema
+use Data::Sah::Util; # tmp, for _parse_schema
 
 sub _parse_schema {
-    Sub::Spec::Utils::_parse_schema(@_);
+    Data::Sah::Util::_parse_schema(@_);
 }
 
 # borrowed from Getopt::Complete. current problems: 1) '$foo' disappears because
@@ -400,7 +400,7 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =head1 SYNOPSIS
 
