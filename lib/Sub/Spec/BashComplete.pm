@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Log::Any '$log';
 
-our $VERSION = '0.18'; # VERSION
+our $VERSION = '0.19'; # VERSION
 
 require Exporter;
 our @ISA       = qw(Exporter);
@@ -395,13 +395,20 @@ Sub::Spec::BashComplete - Provide bash completion for Sub::Spec::CmdLine program
 
 =head1 VERSION
 
-version 0.18
+version 0.19
 
 =head1 SYNOPSIS
 
  # require'd by Sub::Spec::CmdLine bash completion is enabled
 
 =head1 DESCRIPTION
+
+B<NOTICE>: The Sub::Spec specification is deprecated as of Jan 2012. L<Rinci> is
+the new specification to replace Sub::Spec, it is about 95% compatible with
+Sub::Spec, but corrects a few issues and is more generic. Perinci:: is the
+family of Perl modules that implement the Rinci specification. Many of its
+modules can handle existing Sub::Spec sub specs. L<Perinci::BashComplete> is the
+replacement for L<Sub::Spec::BashComplete>.
 
 This module provides functionality for doing bash completion. It is meant to be
 used by L<Sub::Spec::CmdLine>, but nevertheless some routines is reusable
@@ -509,7 +516,7 @@ Steven Haryanto <stevenharyanto@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2011 by Steven Haryanto.
+This software is copyright (c) 2012 by Steven Haryanto.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.

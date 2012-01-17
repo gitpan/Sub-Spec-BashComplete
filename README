@@ -3,12 +3,20 @@ NAME
     programs
 
 VERSION
-    version 0.18
+    version 0.19
 
 SYNOPSIS
      # require'd by Sub::Spec::CmdLine bash completion is enabled
 
 DESCRIPTION
+    NOTICE: The Sub::Spec specification is deprecated as of Jan 2012. Rinci
+    is the new specification to replace Sub::Spec, it is about 95%
+    compatible with Sub::Spec, but corrects a few issues and is more
+    generic. Perinci:: is the family of Perl modules that implement the
+    Rinci specification. Many of its modules can handle existing Sub::Spec
+    sub specs. Perinci::BashComplete is the replacement for
+    Sub::Spec::BashComplete.
+
     This module provides functionality for doing bash completion. It is
     meant to be used by Sub::Spec::CmdLine, but nevertheless some routines
     is reusable outside it.
@@ -92,7 +100,7 @@ AUTHOR
     Steven Haryanto <stevenharyanto@gmail.com>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2011 by Steven Haryanto.
+    This software is copyright (c) 2012 by Steven Haryanto.
 
     This is free software; you can redistribute it and/or modify it under
     the same terms as the Perl 5 programming language system itself.
